@@ -3,6 +3,8 @@
 # dependencies
 /node_modules
 /.pnp
+/.vscode
+.eslintcache
 .pnp.js
 
 # testing
