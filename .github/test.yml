@@ -1,0 +1,33 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3 #깃헙액션에서 제공하는 명령어
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v3 #노드 설치 명렁어
+        with:
+          node-version: 14.x
+          cache: 'npm'
+
+      - run: npm ci #npm 클리어 > 설치
+      - run: npm run build --if-present
+
+      # s3에 업로드
+      - name: s3 업로드
+        env: #깃헙에등록된 환경설정
+          AWS_ACCESS_KEY_ID: ${{ secrets.ABC }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+        run: aws s3 cp --recursive --region ap-northeast-2 ./build s3://$BUCKET_NAME
